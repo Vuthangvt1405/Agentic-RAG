@@ -1,0 +1,17 @@
+ABC Bank Customer Policy
+
+Savings Account
+
+The minimum balance required is 5000 PKR.
+
+Customers can withdraw up to 50000 PKR per day from ATMs.
+
+The annual maintenance fee is 1000 PKR.
+
+The bank provides home loans with interest rates starting from 9%.
+
+Credit card holders receive cashback on grocery purchases.
+
+Customer support is available 24 hours a day.
+
+Lost debit cards should be reported immediately.
