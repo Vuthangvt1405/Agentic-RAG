@@ -9,15 +9,18 @@ Question -> Routing -> vectorstore: Retrieve -> Grade ->
 from config import LLM_DEPLOYMENT
 from router import dispatch
 from tool.answer_check import answers_question
-from tool.grader import any_irrelevant, grade_docs
+from tool.grader import grade_docs
 from tool.hallucination import check_hallucination
 from tool.loading import stage
+from tool.query_rewrite import rewrite_query
+from tool.retrieval_decision import decide_next_retrieval
 from tool.retriever import retrieve
 from tool.web_search import web_search
 
 REFUSAL = "I don't know based on the provided documents."
 MAX_HALLUCINATION_RETRIES = 3
 MAX_ANSWER_ROUNDS = 2
+MAX_LOCAL_RETRIEVAL_ROUNDS = 2
 
 
 def format_chunks(docs):
@@ -77,31 +80,78 @@ def generate_grounded(client, context, question):
     return answer, hallucination, reason, retries, refused
 
 
+def _doc_key(doc):
+    return doc["source"], " ".join(doc["text"].lower().split())
+
+
 def answer_question(question, knowledge_base, client, top_k=3):
-    """Run the full pipeline. Returns {route, docs, grades, web_results, context, answer}."""
+    """Run the adaptive RAG pipeline with at most two local retrieval rounds."""
     with stage("Routing question"):
         route = dispatch(question)["route"]
 
-    docs, grades, web_results = [], [], []
+    docs, grades, web_results, retrieval_rounds = [], [], [], []
 
     if route == "web_search":
         with stage("Searching the web"):
             web_results = web_search(question)
         context = format_web(web_results)
     else:
-        with stage("Retrieving documents"):
-            docs = retrieve(question, knowledge_base, client, top_k=top_k)
-        with stage("Grading documents"):
-            grades = grade_docs(question, docs, client)
-        relevant = [d for d, g in zip(docs, grades) if g == "relevant"]
-        if any_irrelevant(grades):
-            with stage("Searching the web"):
-                web_results = web_search(question)
-            context = "\n\n".join(
-                part for part in (format_chunks(relevant), format_web(web_results)) if part
+        previous_queries, seen_docs, relevant = [], set(), []
+        evidence_gap = ""
+        action = "retrieve_again"
+
+        for round_number in range(1, MAX_LOCAL_RETRIEVAL_ROUNDS + 1):
+            with stage(f"Rewriting retrieval query (round {round_number})"):
+                query, rewrite_reason = rewrite_query(
+                    question, previous_queries, evidence_gap, round_number, client
+                )
+            previous_queries.append(query)
+
+            with stage(f"Retrieving documents (round {round_number})"):
+                candidates = retrieve(query, knowledge_base, client, top_k=top_k)
+            round_docs = [doc for doc in candidates if _doc_key(doc) not in seen_docs]
+            seen_docs.update(_doc_key(doc) for doc in round_docs)
+
+            with stage(f"Grading documents (round {round_number})"):
+                round_grades = grade_docs(question, round_docs, client) if round_docs else []
+            round_relevant = [
+                doc for doc, grade in zip(round_docs, round_grades) if grade == "relevant"
+            ]
+            docs.extend(round_docs)
+            grades.extend(round_grades)
+            relevant.extend(round_relevant)
+
+            with stage(f"Deciding next retrieval step (round {round_number})"):
+                action, evidence_gap = decide_next_retrieval(
+                    question, relevant, round_docs, round_grades, round_number, client
+                )
+            retrieval_rounds.append(
+                {
+                    "round": round_number,
+                    "query": query,
+                    "rewrite_reason": rewrite_reason,
+                    "docs": round_docs,
+                    "grades": round_grades,
+                    "decision": action,
+                    "evidence_gap": evidence_gap,
+                }
             )
-        else:
-            context = format_chunks(relevant)
+
+            if action != "retrieve_again":
+                break
+            if round_number == MAX_LOCAL_RETRIEVAL_ROUNDS:
+                action = "web_search"
+                retrieval_rounds[-1]["decision"] = action
+                retrieval_rounds[-1]["evidence_gap"] = (
+                    "Maximum local retrieval rounds reached. " + evidence_gap
+                )
+
+        if action == "web_search":
+            with stage("Searching the web"):
+                web_results = web_search(evidence_gap or question)
+        context = "\n\n".join(
+            part for part in (format_chunks(relevant), format_web(web_results)) if part
+        )
 
     answer, hallucination, h_reason, h_retries, refused = generate_grounded(
         client, context, question
@@ -131,6 +181,7 @@ def answer_question(question, knowledge_base, client, top_k=3):
         "route": route,
         "docs": docs,
         "grades": grades,
+        "retrieval_rounds": retrieval_rounds,
         "web_results": web_results,
         "context": context,
         "answer": answer,

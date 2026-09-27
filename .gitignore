@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 vector_store/
 .env
+evaluation/results/

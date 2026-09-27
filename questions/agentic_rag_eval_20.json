@@ -1,0 +1,145 @@
+[
+  {
+    "id": "q01",
+    "question": "What problem does Zero Trust Architecture address compared with perimeter-based security?",
+    "type": "concept_explanation",
+    "expected_facts": ["Perimeter-based trust is insufficient in modern distributed environments.", "Zero Trust removes implicit trust.", "Access should be continuously verified."],
+    "expected_sources": ["FINAL_MSc_Thesis_Tim_Steenbrink.pdf", "TH_Pacharee_Ph_2023.pdf"]
+  },
+  {
+    "id": "q02",
+    "question": "What is Zero Trust Network Access (ZTNA)?",
+    "type": "direct_fact",
+    "expected_facts": ["ZTNA controls access to applications or resources.", "Access is based on identity and context rather than network location.", "It follows a least-privilege or verify-before-access approach."],
+    "expected_sources": ["I MPLEMENTATION AND ANALYSIS OF A ZTNA.pdf", "ImplementaçãoRedeDefinida.pdf"]
+  },
+  {
+    "id": "q03",
+    "question": "How does micro-segmentation reduce lateral movement in a network?",
+    "type": "concept_explanation",
+    "expected_facts": ["It divides the network into smaller segments.", "It applies controls between segments or workloads.", "It limits an attacker’s ability to move after compromise."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf", "FINAL_MSc_Thesis_Tim_Steenbrink.pdf"]
+  },
+  {
+    "id": "q04",
+    "question": "Why is identity important in a Zero Trust access-control design?",
+    "type": "concept_explanation",
+    "expected_facts": ["Identity is used to make access decisions.", "Identity should be authenticated or verified before access.", "Identity-based control supports least-privilege access."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf", "I MPLEMENTATION AND ANALYSIS OF A ZTNA.pdf"]
+  },
+  {
+    "id": "q05",
+    "question": "What role can existing firewall solutions play in a Zero Trust implementation?",
+    "type": "direct_fact",
+    "expected_facts": ["Existing firewalls can provide a base for implementation.", "Firewall controls can be tailored to access scenarios.", "They support segmentation or policy enforcement rather than replacing all Zero Trust controls."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf"]
+  },
+  {
+    "id": "q06",
+    "question": "What is meant by a perimeter-less enterprise architecture in the context of Zero Trust?",
+    "type": "concept_explanation",
+    "expected_facts": ["Security is not based on one trusted network perimeter.", "Users, devices, applications, and resources may be distributed.", "Controls must protect access wherever the request originates."],
+    "expected_sources": ["FINAL_MSc_Thesis_Tim_Steenbrink.pdf"]
+  },
+  {
+    "id": "q07",
+    "question": "What are the main goals of migrating an organization to Zero Trust Architecture?",
+    "type": "concept_explanation",
+    "expected_facts": ["Reduce implicit trust.", "Improve protection of assets and access decisions.", "Adopt a structured transformation or migration approach."],
+    "expected_sources": ["TH_Pacharee_Ph_2023.pdf", "FINAL_MSc_Thesis_Tim_Steenbrink.pdf"]
+  },
+  {
+    "id": "q08",
+    "question": "How can Zero Trust access control be adapted for different access scenarios in a multi-layered network?",
+    "type": "relationship",
+    "expected_facts": ["A generalized design can be tailored to individual scenarios.", "The network can contain multiple layers and micro-segments.", "Policies should account for the requested resource and access context."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf"]
+  },
+  {
+    "id": "q09",
+    "question": "How do least privilege and continuous verification complement each other in Zero Trust?",
+    "type": "relationship",
+    "expected_facts": ["Least privilege limits the access granted.", "Continuous verification checks whether access remains justified.", "Together they reduce exposure from excessive or stale trust."],
+    "expected_sources": ["FINAL_MSc_Thesis_Tim_Steenbrink.pdf", "TH_Pacharee_Ph_2023.pdf"]
+  },
+  {
+    "id": "q10",
+    "question": "Why are policy enforcement points important in a Zero Trust architecture?",
+    "type": "direct_fact",
+    "expected_facts": ["They enforce access decisions.", "They apply policy close to protected resources or communication paths.", "They help prevent unauthorized connections."],
+    "expected_sources": ["FINAL_MSc_Thesis_Tim_Steenbrink.pdf", "I MPLEMENTATION AND ANALYSIS OF A ZTNA.pdf"]
+  },
+  {
+    "id": "q11",
+    "question": "How does software-defined networking support a Zero Trust Network Access design?",
+    "type": "relationship",
+    "expected_facts": ["SDN enables programmable or centrally managed network behavior.", "It can support dynamic segmentation or policy enforcement.", "It can be combined with ZTNA principles to control access."],
+    "expected_sources": ["ImplementaçãoRedeDefinida.pdf"]
+  },
+  {
+    "id": "q12",
+    "question": "What implementation challenge arises when applying Zero Trust to complex, multi-layered, micro-segmented environments?",
+    "type": "direct_fact",
+    "expected_facts": ["The environment has multiple layers or segments to account for.", "Controls must work across different access scenarios.", "The design must integrate with existing infrastructure."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf"]
+  },
+  {
+    "id": "q13",
+    "question": "How does restricting access per request help protect organizational assets?",
+    "type": "concept_explanation",
+    "expected_facts": ["Each request is evaluated before access is granted.", "Unauthorized or risky requests can be denied.", "This reduces reliance on a previously trusted network position."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf", "I MPLEMENTATION AND ANALYSIS OF A ZTNA.pdf"]
+  },
+  {
+    "id": "q14",
+    "question": "Compare a traditional VPN-style trust assumption with a ZTNA-style access decision.",
+    "type": "comparison",
+    "expected_facts": ["Traditional approaches often trust users after network entry.", "ZTNA evaluates access to a specific application or resource.", "ZTNA uses identity and contextual verification or least privilege."],
+    "expected_sources": ["I MPLEMENTATION AND ANALYSIS OF A ZTNA.pdf", "FINAL_MSc_Thesis_Tim_Steenbrink.pdf"]
+  },
+  {
+    "id": "q15",
+    "question": "How do micro-segmentation and identity-based access control work together to limit breach impact?",
+    "type": "multi_hop",
+    "expected_facts": ["Identity-based control verifies who or what requests access.", "Micro-segmentation restricts reachable resources or lateral movement.", "Together they contain unauthorized access and reduce breach spread."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf", "FINAL_MSc_Thesis_Tim_Steenbrink.pdf"],
+    "minimum_retrieval_rounds": 2
+  },
+  {
+    "id": "q16",
+    "question": "How can an organization use existing firewall infrastructure while migrating toward a perimeter-less Zero Trust architecture?",
+    "type": "multi_hop",
+    "expected_facts": ["Existing firewall infrastructure can provide an implementation base.", "Policies must be adapted for Zero Trust access scenarios.", "The migration reduces reliance on a single trusted perimeter."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf", "FINAL_MSc_Thesis_Tim_Steenbrink.pdf"],
+    "minimum_retrieval_rounds": 2
+  },
+  {
+    "id": "q17",
+    "question": "How can a phased Zero Trust migration combine policy design with technical enforcement?",
+    "type": "multi_hop",
+    "expected_facts": ["Migration needs a structured framework or design process.", "Policies define who or what may access resources.", "Technical controls such as segmentation, firewalls, or ZTNA enforce those policies."],
+    "expected_sources": ["TH_Pacharee_Ph_2023.pdf", "Eskelinen_Jesse_Thesis.pdf"],
+    "minimum_retrieval_rounds": 2
+  },
+  {
+    "id": "q18",
+    "question": "What trade-off should an organization consider between stronger Zero Trust controls and implementation complexity?",
+    "type": "comparison",
+    "expected_facts": ["Stronger controls can improve protection and reduce implicit trust.", "Complex environments make design and integration harder.", "A practical design must be tailored to organizational access scenarios and infrastructure."],
+    "expected_sources": ["Eskelinen_Jesse_Thesis.pdf", "TH_Pacharee_Ph_2023.pdf"]
+  },
+  {
+    "id": "q19",
+    "question": "What evidence would be needed to determine the current market price of a commercial ZTNA product?",
+    "type": "corpus_insufficient",
+    "expected_facts": ["A current vendor price list, quotation, or market source is needed.", "The local academic thesis corpus is not sufficient for a current price.", "The system should use web search or state the limitation rather than invent a price."],
+    "expected_sources": []
+  },
+  {
+    "id": "q20",
+    "question": "What is the latest version of the NIST Zero Trust Architecture publication?",
+    "type": "corpus_insufficient",
+    "expected_facts": ["The answer requires a current authoritative NIST source.", "The local thesis corpus may discuss Zero Trust but cannot establish the latest publication version.", "The system should seek current web evidence or state that it cannot verify recency."],
+    "expected_sources": []
+  }
+]

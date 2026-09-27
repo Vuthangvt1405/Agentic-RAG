@@ -16,11 +16,17 @@ WEB = [{"title": "ZTNA overview", "url": "https://example.com/ztna", "text": "ZT
 Q = "What is zero trust network access?"
 
 
-def run_pipeline(route, grades):
+def run_pipeline(route, grades, decision="answer"):
     with (
         patch.object(adaptive, "dispatch", return_value={"route": route}),
         patch.object(adaptive, "retrieve", return_value=DOCS),
         patch.object(adaptive, "grade_docs", return_value=grades),
+        patch.object(adaptive, "rewrite_query", return_value=(Q, "stubbed rewrite")),
+        patch.object(
+            adaptive,
+            "decide_next_retrieval",
+            return_value=(decision, "local evidence incomplete"),
+        ),
         patch.object(adaptive, "web_search", return_value=WEB) as mock_web,
         patch.object(adaptive, "generate_answer", return_value="mock answer") as mock_gen,
         patch.object(
@@ -34,7 +40,7 @@ def run_pipeline(route, grades):
     return result, mock_web, mock_gen
 
 
-# Case 1: all relevant -> no web call, chunks-only context.
+# Case 1: evidence controller says answer -> no web call, chunks-only context.
 result, mock_web, mock_gen = run_pipeline("vectorstore", ["relevant", "relevant"])
 assert result["route"] == "vectorstore"
 assert result["web_results"] == []
@@ -43,10 +49,12 @@ context = mock_gen.call_args[0][1]
 assert "Zero trust verifies" in context and "example.com" not in context
 print("case 1 ok: all relevant -> chunks only, no web call.")
 
-# Case 2: any irrelevant -> web called, combined context.
-result, mock_web, mock_gen = run_pipeline("vectorstore", ["relevant", "irrelevant"])
+# Case 2: evidence controller says web_search -> combined context.
+result, mock_web, mock_gen = run_pipeline(
+    "vectorstore", ["relevant", "irrelevant"], decision="web_search"
+)
 assert result["web_results"] == WEB
-mock_web.assert_called_once_with(Q)
+mock_web.assert_called_once_with("local evidence incomplete")
 context = mock_gen.call_args[0][1]
 assert "Zero trust verifies" in context and "https://example.com/ztna" in context
 assert "Sourdough" not in context  # irrelevant chunk excluded
@@ -57,6 +65,8 @@ with (
     patch.object(adaptive, "dispatch", return_value={"route": "web_search"}),
     patch.object(adaptive, "retrieve") as mock_ret,
     patch.object(adaptive, "grade_docs") as mock_grade,
+    patch.object(adaptive, "rewrite_query") as mock_rewrite,
+    patch.object(adaptive, "decide_next_retrieval") as mock_decide,
     patch.object(adaptive, "web_search", return_value=WEB),
     patch.object(adaptive, "generate_answer", return_value="mock answer") as mock_gen,
     patch.object(
@@ -69,6 +79,8 @@ with (
     result = adaptive.answer_question(Q, knowledge_base=[], client=None)
 mock_ret.assert_not_called()
 mock_grade.assert_not_called()
+mock_rewrite.assert_not_called()
+mock_decide.assert_not_called()
 assert "https://example.com/ztna" in mock_gen.call_args[0][1]
 print("case 3 ok: unrelated -> web only, retrieve/grade skipped.")
 

@@ -10,6 +10,12 @@ from tool.knowledge_base import (
 def print_result(result):
     print(f"\nRoute: {result['route']}\n")
 
+    for round_info in result.get("retrieval_rounds", []):
+        print(
+            f"Retrieval round {round_info['round']}: {round_info['query']}\n"
+            f"Decision: {round_info['decision']} — {round_info['evidence_gap']}\n"
+        )
+
     if result["docs"]:
         print("Top Retrieved Chunks\n")
         for chunk, grade in zip(result["docs"], result["grades"]):
